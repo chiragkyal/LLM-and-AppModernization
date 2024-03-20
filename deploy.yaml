@@ -75,7 +75,7 @@ spec:
           mountPath: /app/models
       containers:
       - image: quay.io/ckyal/frontend-llm:latest
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         name: frontend-llm
         ports:
         - containerPort: 8501
