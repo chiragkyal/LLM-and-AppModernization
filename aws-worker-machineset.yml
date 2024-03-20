@@ -1,0 +1,65 @@
+# https://docs.openshift.com/container-platform/4.14/machine_management/creating_machinesets/creating-machineset-aws.html#nvidia-gpu-aws-adding-a-gpu-node_creating-machineset-aws
+# https://docs.nvidia.com/datacenter/cloud-native/openshift/latest/introduction.html
+apiVersion: machine.openshift.io/v1beta1
+kind: MachineSet
+metadata:
+  name: ckyal-cluster-march20-w94n2-worker-us-east-2d
+  namespace: openshift-machine-api
+  labels:
+    machine.openshift.io/cluster-api-cluster: ckyal-cluster-march20-w94n2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      machine.openshift.io/cluster-api-cluster: ckyal-cluster-march20-w94n2
+      machine.openshift.io/cluster-api-machineset: ckyal-cluster-march20-w94n2-worker-us-east-2d
+  template:
+    metadata:
+      labels:
+        machine.openshift.io/cluster-api-cluster: ckyal-cluster-march20-w94n2
+        machine.openshift.io/cluster-api-machine-role: worker
+        machine.openshift.io/cluster-api-machine-type: worker
+        machine.openshift.io/cluster-api-machineset: ckyal-cluster-march20-w94n2-worker-us-east-2d
+    spec:
+      providerSpec:
+        value:
+          userDataSecret:
+            name: worker-user-data
+          placement:
+            # availabilityZone: us-east-2a
+            region: us-east-2
+          credentialsSecret:
+            name: aws-cloud-credentials
+          instanceType: p3.2xlarge
+          metadata:
+            creationTimestamp: null
+          blockDevices:
+            - ebs:
+                encrypted: true
+                iops: 0
+                kmsKey:
+                  arn: ''
+                volumeSize: 120
+                volumeType: gp3
+          securityGroups:
+            - filters:
+                - name: 'tag:Name'
+                  values:
+                    - ckyal-cluster-march20-w94n2-worker-sg
+          kind: AWSMachineProviderConfig
+          metadataServiceOptions: {}
+          tags:
+            - name: kubernetes.io/cluster/ckyal-cluster-march20-w94n2
+              value: owned
+          deviceIndex: 0
+          ami:
+            id: ami-031d6e5e3d4f2f192
+          subnet:
+            filters:
+              - name: 'tag:Name'
+                values:
+                  - ckyal-cluster-march20-w94n2-private-us-east-2a
+          apiVersion: machine.openshift.io/v1beta1
+          iamInstanceProfile:
+            id: ckyal-cluster-march20-w94n2-worker-profile
+
