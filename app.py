@@ -176,7 +176,13 @@ def main() -> None:
         
         if(with_rag):
             #call account services
-            accountservices_url = f'http://127.0.0.1:5000/processuserpmt?prompt={user_input}'
+
+            # to use when running locally
+            # accountservices_url = f'http://127.0.0.1:5000/processuserpmt?prompt={user_input}'
+            
+            # to use the Kubernetes service name instead
+            accountservices_url = f'http://backend-llm.llm.svc.cluster.local:5000/processuserpmt?prompt={user_input}'
+
             json_result = requests.get(accountservices_url).json()
             print(json_result)
             text_context = json_result['result']
