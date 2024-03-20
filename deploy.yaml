@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: llm
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-llm
+  namespace: llm
+  labels:
+    app: backend-llm
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend-llm
+  template:
+    metadata:
+      labels:
+        app: backend-llm
+    spec:
+      containers:
+        - name: backend-llm
+          image: quay.io/ckyal/backend-llm:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-llm
+  namespace: llm
+spec:
+  ports:
+  - port: 5000
+    protocol: TCP
+    targetPort: 5000
+  selector:
+    app: backend-llm
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-llm
+  namespace: llm
+  labels:
+    app: frontend-llm
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend-llm
+  template:
+    metadata:
+      labels:
+        app: frontend-llm
+    spec:
+      containers:
+      - image: quay.io/ckyal/frontend-llm:latest
+        imagePullPolicy: IfNotPresent
+        name: frontend-llm
+        ports:
+        - containerPort: 8501
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: frontend-llm
+  name: frontend-llm
+  namespace: llm
+spec:
+  ports:
+  - name: 8501-tcp
+    port: 8501
+    protocol: TCP
+    targetPort: 8501
+  selector:
+    app: frontend-llm
+  type: ClusterIP
